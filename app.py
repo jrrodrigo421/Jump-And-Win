@@ -12,7 +12,7 @@ mixer.init()
 # Configurações da tela
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Tap & Dash: Edição Especial")
+pygame.display.set_caption("JumpAndWin: 💸")
 
 clock = pygame.time.Clock()
 FPS = 60
@@ -255,7 +255,7 @@ def login_screen():
                     elif button.text == "Novo Usuário":
                         login_mode = False
         screen.fill((30,30,60))
-        title = TITLE_FONT.render("Tap & Dash: Edição Especial", True, YELLOW)
+        title = TITLE_FONT.render("JumpAndWin: 💸", True, YELLOW)
         screen.blit(title, (WIDTH//2 - title.get_width()//2, 80))
         prompt_text = FONT.render("Entre com seu nome:" if login_mode else "Crie seu nome:", True, WHITE)
         screen.blit(prompt_text, (WIDTH//2 - prompt_text.get_width()//2, HEIGHT//2 - 50))
@@ -318,7 +318,7 @@ def main_menu(username):
         screen.fill((30,30,60))
         for p in particles:
             p.draw(screen)
-        title = TITLE_FONT.render("Tap & Dash: Edição Especial", True, YELLOW)
+        title = TITLE_FONT.render("JumpAndWin: 💸", True, YELLOW)
         screen.blit(title, (WIDTH//2 - title.get_width()//2, 80))
         user_info = FONT.render(f"Jogador: {username}    Saldo: {users_db[username]['balance']}", True, WHITE)
         screen.blit(user_info, (20, 20))
