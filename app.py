@@ -23,14 +23,14 @@ FONT = pygame.font.SysFont("Arial", 24)
 SMALL_FONT = pygame.font.SysFont("Arial", 18)
 
 # Cores
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (220, 20, 60)
-BLUE = (65, 105, 225)
-GREEN = (34, 139, 34)
-YELLOW = (255, 215, 0)
-PURPLE = (138, 43, 226)
-ORANGE = (255, 140, 0)
+WHITE   = (255, 255, 255)
+BLACK   = (0, 0, 0)
+RED     = (220, 20, 60)
+BLUE    = (65, 105, 225)
+GREEN   = (34, 139, 34)
+YELLOW  = (255, 215, 0)
+PURPLE  = (138, 43, 226)
+ORANGE  = (255, 140, 0)
 
 # Parâmetros do jogo
 GRAVITY = 0.6
@@ -52,14 +52,11 @@ except:
     point_sound = mixer.Sound(buffer=bytearray(100))
     powerup_sound = mixer.Sound(buffer=bytearray(100))
 
-# Música de fundo para fases (4 fases)
-background_music = []
+# Música de fundo para fases (4 fases originalmente, mas usaremos o game_music.wav)
 try:
-    for i in range(1, 5):
-        background_music.append(mixer.Sound(f'assets/music_phase{i}.wav'))
+    mixer.music.load('assets/game_music.wav')
 except:
-    for i in range(4):
-        background_music.append(mixer.Sound(buffer=bytearray(100)))
+    pass
 
 # Armazenamento dos dados do usuário
 USER_DATA_FILE = "user_data.json"
@@ -162,38 +159,46 @@ def draw_cactus(surface, x, y):
     pygame.draw.rect(surface, (50,205,50), (x-5, y-45, -15, 8))
     pygame.draw.rect(surface, (50,205,50), (x+5, y-30, 15, 8))
 
-# Função de fundo dinâmico com fases
+# Fundo dinâmico com 10 fases (cicladas)
 def draw_background(surface, score):
-    phase = min(4, score // 10 + 1)
+    # Definir fase: a cada 10 pontos, mas ciclando de 1 a 10
+    phase = ((score // 10) % 10) + 1
     phase_colors = [
-        [(173,216,230), WHITE],         # Fase 1
-        [(144,238,144), (220,255,220)],   # Fase 2
-        [(255,165,0), (255,215,0)],       # Fase 3
-        [(139,0,0), (80,0,0)]             # Fase 4
+        [(173,216,230), WHITE],         # Fase 1: Céu azul claro
+        [(144,238,144), (220,255,220)],   # Fase 2: Verde suave
+        [(255,165,0), (255,215,0)],       # Fase 3: Laranja/amarelo
+        [(139,0,0), (80,0,0)],            # Fase 4: Vermelho escuro
+        [(135,206,250), (240,248,255)],   # Fase 5: Azul celeste
+        [(152,251,152), (240,255,240)],   # Fase 6: Verde pálido
+        [(255,192,203), (255,228,225)],   # Fase 7: Rosa
+        [(221,160,221), (238,130,238)],   # Fase 8: Violeta
+        [(255,218,185), (255,228,196)],   # Fase 9: Pêssego
+        [(192,192,192), (255,250,250)]    # Fase 10: Cinza claro para neve
     ]
     top_color, bottom_color = phase_colors[phase - 1]
     for y in range(HEIGHT):
         ratio = y / HEIGHT
-        r = int(top_color[0]*(1-ratio) + bottom_color[0]*ratio)
-        g = int(top_color[1]*(1-ratio) + bottom_color[1]*ratio)
-        b = int(top_color[2]*(1-ratio) + bottom_color[2]*ratio)
+        r = int(top_color[0]*(1 - ratio) + bottom_color[0]*ratio)
+        g = int(top_color[1]*(1 - ratio) + bottom_color[1]*ratio)
+        b = int(top_color[2]*(1 - ratio) + bottom_color[2]*ratio)
         pygame.draw.line(surface, (r, g, b), (0, y), (WIDTH, y))
-    if phase == 1:
+    # Elementos decorativos conforme a fase
+    if phase % 4 == 1:
         for _ in range(5):
-            cloud_x = (pygame.time.get_ticks()//50 + random.randint(0,800)) % (WIDTH+200) - 100
+            cloud_x = (pygame.time.get_ticks()//50 + random.randint(0,WIDTH)) % (WIDTH+200) - 100
             cloud_y = random.randint(50,150)
             draw_cloud(surface, cloud_x, cloud_y)
-    elif phase == 2:
+    elif phase % 4 == 2:
         for i in range(10):
-            tree_x = (i*100 + (pygame.time.get_ticks()//80)%100) % WIDTH
+            tree_x = (i*80 + (pygame.time.get_ticks()//80)%80) % WIDTH
             tree_y = HEIGHT - 100
             draw_tree(surface, tree_x, tree_y)
-    elif phase == 3:
+    elif phase % 4 == 3:
         for i in range(5):
-            cactus_x = (i*180 + (pygame.time.get_ticks()//60)%180) % WIDTH
+            cactus_x = (i*150 + (pygame.time.get_ticks()//60)%150) % WIDTH
             cactus_y = HEIGHT - 100
             draw_cactus(surface, cactus_x, cactus_y)
-    elif phase == 4:
+    elif phase % 4 == 0:
         lava_height = 50
         lava_y = HEIGHT - lava_height
         for x in range(0, WIDTH, 4):
@@ -431,8 +436,8 @@ def tutorial_screen():
         {
             "title": "Fases e Dificuldade",
             "text": [
-                "Fases mudam a cada 10 pontos, com novos cenários.",
-                "Obstáculos ficam mais rápidos e frequentes com o tempo."
+                "10 fases diferentes que se repetem ciclicamente,",
+                "mas a velocidade continua aumentando."
             ]
         },
         {
@@ -478,7 +483,7 @@ def tutorial_screen():
         clock.tick(FPS)
     return
 
-# Classe do Jogador com novos efeitos (rastro, power-ups)
+# Classe do Jogador com rastro e power-ups
 class Player:
     def __init__(self):
         self.width = 50
@@ -527,7 +532,7 @@ class Player:
         if self.shield_active:
             pygame.draw.ellipse(surface, ORANGE, (self.x - 5, self.y - 5, self.width + 10, self.height + 10), 3)
 
-# Classe dos Obstáculos (usando a definição já existente)
+# Classe dos Obstáculos
 class Obstacle:
     def __init__(self):
         self.width = random.randint(20, 50)
@@ -551,6 +556,10 @@ def game_loop(username):
     game_over = False
     current_speed = BASE_OBSTACLE_SPEED
     shield_timer = 0
+    cheat_detected = False
+
+    # Início da sessão
+    session_start = pygame.time.get_ticks()
 
     if users_db[username]['balance'] < PLAY_COST:
         show_message("Saldo insuficiente para jogar!", "Pressione ENTER para voltar ao MENU")
@@ -566,20 +575,26 @@ def game_loop(username):
 
     while True:
         clock.tick(FPS)
+        # Verificar tempo da sessão para anti-cheat (limite: > 5 pontos/segundo)
+        elapsed_time = (pygame.time.get_ticks() - session_start) / 1000
+        if elapsed_time > 0 and score / elapsed_time > 5:
+            cheat_detected = True
+            game_over = True
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     if game_over:
-                        return score
+                        return score if not cheat_detected else "cheat"
                     else:
                         _ = player.jump()
                 if event.key == pygame.K_x:
                     if users_db[username]['items']['shield'] > 0 and not player.shield_active:
                         users_db[username]['items']['shield'] -= 1
                         player.shield_active = True
-                        shield_timer = 120  # 2 segundos
+                        shield_timer = 120
                         powerup_sound.play()
                 if event.key == pygame.K_d:
                     return "end_day"
@@ -620,7 +635,10 @@ def game_loop(username):
         screen.blit(balance_text, (10, 40))
         screen.blit(pot_text, (10, 70))
         if game_over:
-            over_text = FONT.render("Game Over! Press SPACE to finish.", True, BLACK)
+            if cheat_detected:
+                over_text = FONT.render("Cheating detected! Press SPACE to finish.", True, RED)
+            else:
+                over_text = FONT.render("Game Over! Press SPACE to finish.", True, BLACK)
             screen.blit(over_text, (20, HEIGHT//2 - 20))
             high_scores = load_high_scores()
             ranking_text = FONT.render("High Scores:", True, BLACK)
@@ -680,6 +698,8 @@ def main():
                 continue
             if result == "end_day":
                 end_of_day()
+            elif result == "cheat":
+                show_message("Cheating detected! Session terminated.", "Pressione ENTER para voltar ao MENU")
             else:
                 if result > users_db[username]['high_score']:
                     users_db[username]['high_score'] = result
@@ -695,3 +715,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
