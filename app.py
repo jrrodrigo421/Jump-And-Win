@@ -257,7 +257,7 @@ def login_screen():
         screen.fill((30,30,60))
         title = TITLE_FONT.render("JumpAndWin: 💸", True, YELLOW)
         screen.blit(title, (WIDTH//2 - title.get_width()//2, 80))
-        prompt_text = FONT.render("Entre com seu nome:" if login_mode else "Crie seu nome:", True, WHITE)
+        prompt_text = FONT.render("Entre com seu nome para logar:" if login_mode else "Crie seu nome para cadastrar:", True, WHITE)
         screen.blit(prompt_text, (WIDTH//2 - prompt_text.get_width()//2, HEIGHT//2 - 50))
         pygame.draw.rect(screen, WHITE, (WIDTH//2 - 150, HEIGHT//2 - 20, 300, 40), border_radius=5)
         user_text = FONT.render(username, True, BLACK)
