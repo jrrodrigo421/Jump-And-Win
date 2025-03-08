@@ -2,3 +2,6 @@ high_scores.json
 high_scores.txt
 user_data.json
 .env
+/build
+/dist
+main.spec
